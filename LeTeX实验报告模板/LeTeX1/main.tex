@@ -1,0 +1,38 @@
+% !TeX program = xelatex
+% 编译建议：XeLaTeX -> Biber -> XeLaTeX -> XeLaTeX
+\documentclass[a4paper,UTF8,fontset=fandol]{ctexbook}
+
+% 如果你的 TeX 环境支持 LXGW 字体，也可以把上一行改成：
+% \documentclass[a4paper,UTF8,fontset=lxgw]{ctexbook}
+
+\usepackage{preambles/math-solutions-template}
+\addbibresource{bib/references.bib}
+
+\hypersetup{
+  pdftitle={这是 PDF 标题部分},
+  pdfauthor={这是作者部分},
+  pdflang={zh-CN},
+  pdfdisplaydoctitle=true
+}
+
+\begin{document}
+
+% 标题页使用字母页码，避免与正文页码冲突
+\pagenumbering{Alph}
+\input{chapters/titlepage.tex}
+
+\frontmatter{}
+\include{chapters/99_preface-contrib.tex}
+\include{chapters/99_preface-overview.tex}
+
+\tableofcontents
+
+\mainmatter{}
+% 如果希望从第 1 章开始，不需要 setcounter；如果要仿照原项目从第 8 章开始，可取消下一行注释。
+% \setcounter{chapter}{7}
+\include{chapters/01_template-chapter.tex}
+
+\backmatter{}
+\printbibliography[heading=bibintoc, title={参考文献}]
+
+\end{document}

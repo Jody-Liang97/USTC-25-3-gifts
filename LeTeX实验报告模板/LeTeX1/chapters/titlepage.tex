@@ -1,0 +1,49 @@
+% --- 标题页模板 ---
+\pdfbookmark{标题页}{title}
+\thispagestyle{empty}
+
+\begin{center}
+    \vspace*{\stretch{2.5}}
+
+    {\fontsize{34pt}{40pt}\selectfont\rmfamily\bfseries\color{ThemeWine}
+        这是标题部分\\[0.4em] 这是副标题部分
+    }
+
+    \vspace{1.2cm}
+
+    {\color{ThemeWine}\hrule height 2.2pt}
+    \vspace{2.5pt}
+    {\color{ThemeRose}\hrule height 0.8pt}
+
+    \vspace{1.2cm}
+
+    {\fontsize{18pt}{22pt}\selectfont\rmfamily\bfseries\color{ThemeDarkBlue}
+        This is the English Title Part
+    } \\
+    \vspace{0.6em}
+    {\large\rmfamily\bfseries\color{ThemeDarkBlue} This is the English Subtitle Part}
+
+    \vspace*{\stretch{2}}
+
+    {\Large\kaishu\color{ThemeDarkBlue} 这是作者部分}\footnote{%
+        \color{ThemeDarkBlue}\rmfamily
+        这是脚注说明部分。这里可以写项目地址、联系方式、版本说明或致谢内容。
+    }
+
+    \vspace{0.5cm}
+    {\large\kaishu\color{ThemeMidBlue} 这是单位或学校部分}
+
+    \vspace{2cm}
+
+    {\color{ThemeRose}\Large $\mathcal{Q.E.D.}$}
+
+    \vspace{0.8cm}
+    {\large\rmfamily\color{ThemeMidBlue}\today}
+
+    \vspace*{\stretch{3.5}}
+\end{center}
+
+\newpage
+\thispagestyle{empty}
+
+\endinput

@@ -1,0 +1,644 @@
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{hyperref}
+\geometry{margin=1in}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red!60!black},
+    breaklines=true,
+    showstringspaces=false,
+    frame=single
+}
+
+\title{KMP 知识讲解与 OJ 练习题}
+\author{pinqu（AI 辅助）}
+\date{2026.4.13}
+
+\begin{document}
+\maketitle
+
+\section{KMP 基础知识讲解}
+
+\subsection{KMP 要解决什么问题}
+KMP（Knuth-Morris-Pratt）算法用于解决字符串匹配问题：给定主串 $S$ 和模式串 $P$，判断 $P$ 是否在 $S$ 中出现，或者找出它出现的位置。
+
+暴力匹配(BF算法)在失配时会让主串指针回退，最坏时间复杂度为 $O(nm)$。  
+KMP 的核心思想是：\textbf{主串指针不回退，只回退模式串指针}，从而把复杂度优化到 $O(n+m)$。
+
+\subsection{next 数组的意义}
+当模式串在位置 $j$ 失配时，KMP 不会从头开始比较，而是跳到 $next[j]$ 对应的位置继续匹配。
+
+它本质上利用了模式串自身的前后缀信息。  
+例如字符串 \texttt{ababaca}，在某个位置失配时，如果已知前面已经匹配了一段，那么模式串内部已经包含的信息可以帮助我们跳过重复比较。
+
+\subsection{两种常见写法}
+常见有两种体系：
+
+\begin{itemize}
+    \item \texttt{next[0] = -1} 写法
+    \item \texttt{lps[0] = 0} 写法
+\end{itemize}
+
+本文统一使用 \texttt{next[0] = -1} 的写法。
+
+\subsection{next 数组构造模板}
+\begin{lstlisting}
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            i++;
+            j++;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+\end{lstlisting}
+
+\subsection{KMP 匹配模板}
+\begin{lstlisting}
+int kmp(const string& s, const string& p) {
+    if (p.empty()) return 0;
+
+    vector<int> nxt = getNext(p);
+    int i = 0, j = 0;
+    int n = s.size(), m = p.size();
+
+    while (i < n && j < m) {
+        if (j == -1 || s[i] == p[j]) {
+            i++;
+            j++;
+        } else {
+            j = nxt[j];
+        }
+    }
+
+    if (j == m) return i - j;
+    return -1;
+}
+\end{lstlisting}
+
+\subsection{最容易出错的点}
+\begin{enumerate}
+    \item 判断顺序必须写成 \texttt{j == -1 || s[i] == p[j]}，否则可能访问 \texttt{p[-1]}。
+    \item 构造 \texttt{next} 时循环通常写成 \texttt{while (i < m - 1)}。
+    \item 失配时回退的是 \texttt{j}，不是 \texttt{i}。
+    \item 不要把 \texttt{next[0] = -1} 和 \texttt{lps[0] = 0} 两套写法混在一起。
+\end{enumerate}
+
+\section{OJ 题目与参考代码}
+
+\subsection*{题目 1：字符串首次匹配}
+
+\textbf{题目描述}  
+给定两个字符串 $S$ 和 $P$，求模式串 $P$ 在主串 $S$ 中第一次出现的位置。若不存在，输出 $-1$。
+
+\textbf{输入格式}
+\begin{itemize}
+    \item 第一行输入字符串 $S$
+    \item 第二行输入字符串 $P$
+\end{itemize}
+
+\textbf{输出格式}  
+输出一个整数。
+
+\textbf{数据范围}  
+$1 \le |S|, |P| \le 10^5$
+
+\textbf{样例输入}
+\begin{lstlisting}
+helloabcworld
+abc
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+5
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+
+int kmp(const string& s, const string& p) {
+    if (p.empty()) return 0;
+    vector<int> nxt = getNext(p);
+    int i = 0, j = 0;
+    while (i < (int)s.size() && j < (int)p.size()) {
+        if (j == -1 || s[i] == p[j]) {
+            ++i; ++j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return (j == (int)p.size()) ? i - j : -1;
+}
+
+int main() {
+    string s, p;
+    cin >> s >> p;
+    cout << kmp(s, p) << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 2：输出 next 数组}
+
+\textbf{题目描述}  
+给定一个模式串 $P$，请输出它的 \texttt{next} 数组（采用 \texttt{next[0] = -1} 写法）。
+
+\textbf{输入格式}  
+输入一个字符串 $P$。
+
+\textbf{输出格式}  
+输出一行 $n$ 个整数，表示 \texttt{next} 数组。
+
+\textbf{样例输入}
+\begin{lstlisting}
+ababaca
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+-1 0 0 1 2 3 0
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+
+int main() {
+    string p;
+    cin >> p;
+    vector<int> nxt = getNext(p);
+    for (int i = 0; i < (int)nxt.size(); ++i) {
+        cout << nxt[i] << (i + 1 == (int)nxt.size() ? '\n' : ' ');
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 3：找出所有匹配位置}
+
+\textbf{题目描述}  
+给定主串 $S$ 和模式串 $P$，输出模式串在主串中出现的所有位置，允许重叠匹配。
+
+\textbf{输入格式}
+\begin{itemize}
+    \item 第一行输入字符串 $S$
+    \item 第二行输入字符串 $P$
+\end{itemize}
+
+\textbf{输出格式}  
+按升序输出所有匹配起始位置，空格分隔。若不存在，输出 \texttt{-1}。
+
+\textbf{样例输入}
+\begin{lstlisting}
+aaaaa
+aa
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+0 1 2 3
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+
+int main() {
+    string s, p;
+    cin >> s >> p;
+    vector<int> nxt = getNext(p);
+    vector<int> ans;
+
+    int i = 0, j = 0;
+    while (i < (int)s.size()) {
+        if (j == -1 || s[i] == p[j]) {
+            ++i; ++j;
+        } else {
+            j = nxt[j];
+        }
+
+        if (j == (int)p.size()) {
+            ans.push_back(i - j);
+            j = nxt[j - 1] + 1;
+        }
+    }
+
+    if (ans.empty()) {
+        cout << -1 << "\n";
+    } else {
+        for (int k = 0; k < (int)ans.size(); ++k) {
+            cout << ans[k] << (k + 1 == (int)ans.size() ? '\n' : ' ');
+        }
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 4：统计模式串出现次数}
+
+\textbf{题目描述}  
+给定字符串 $S$ 和模式串 $P$，统计 $P$ 在 $S$ 中出现的次数，允许重叠。
+
+\textbf{输入格式}
+\begin{itemize}
+    \item 第一行输入字符串 $S$
+    \item 第二行输入字符串 $P$
+\end{itemize}
+
+\textbf{输出格式}  
+输出一个整数。
+
+\textbf{样例输入}
+\begin{lstlisting}
+abababab
+abab
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+3
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+
+int main() {
+    string s, p;
+    cin >> s >> p;
+    vector<int> nxt = getNext(p);
+
+    int cnt = 0;
+    int i = 0, j = 0;
+    while (i < (int)s.size()) {
+        if (j == -1 || s[i] == p[j]) {
+            ++i; ++j;
+        } else {
+            j = nxt[j];
+        }
+
+        if (j == (int)p.size()) {
+            ++cnt;
+            j = nxt[j - 1] + 1;
+        }
+    }
+
+    cout << cnt << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 5：判断重复子串构成}
+
+\textbf{题目描述}  
+给定一个字符串 $s$，判断它是否可以由某个更短的子串重复若干次构成。
+
+\textbf{输入格式}  
+输入一个字符串 $s$。
+
+\textbf{输出格式}  
+若可以，输出 \texttt{true}；否则输出 \texttt{false}。
+
+\textbf{样例输入}
+\begin{lstlisting}
+ababab
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+true
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// 这里用 lps 写法更直观
+vector<int> getLPS(const string& s) {
+    int n = s.size();
+    vector<int> lps(n, 0);
+    for (int i = 1, len = 0; i < n; ) {
+        if (s[i] == s[len]) {
+            lps[i++] = ++len;
+        } else if (len > 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+int main() {
+    string s;
+    cin >> s;
+    vector<int> lps = getLPS(s);
+    int n = s.size();
+    int len = lps[n - 1];
+    int cycle = n - len;
+
+    if (len > 0 && n % cycle == 0) cout << "true\n";
+    else cout << "false\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 6：最小循环节长度}
+
+\textbf{题目描述}  
+给定一个字符串 $s$，求它的最小循环节长度。若不存在严格循环结构，则输出字符串长度。
+
+\textbf{输入格式}  
+输入一个字符串 $s$。
+
+\textbf{输出格式}  
+输出一个整数。
+
+\textbf{样例输入}
+\begin{lstlisting}
+abcabcabcabc
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+3
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getLPS(const string& s) {
+    int n = s.size();
+    vector<int> lps(n, 0);
+    for (int i = 1, len = 0; i < n; ) {
+        if (s[i] == s[len]) {
+            lps[i++] = ++len;
+        } else if (len > 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+int main() {
+    string s;
+    cin >> s;
+    int n = s.size();
+    vector<int> lps = getLPS(s);
+    int len = lps[n - 1];
+    int cycle = n - len;
+
+    if (len > 0 && n % cycle == 0) cout << cycle << "\n";
+    else cout << n << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 7：字符串旋转判断}
+
+\textbf{题目描述}  
+给定两个字符串 $s_1$ 和 $s_2$，判断 $s_2$ 是否可以由 $s_1$ 旋转得到。
+
+\textbf{输入格式}
+\begin{itemize}
+    \item 第一行输入字符串 $s_1$
+    \item 第二行输入字符串 $s_2$
+\end{itemize}
+
+\textbf{输出格式}  
+若可以输出 \texttt{true}，否则输出 \texttt{false}。
+
+\textbf{样例输入}
+\begin{lstlisting}
+abcde
+cdeab
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+true
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<int> getNext(const string& p) {
+    int m = p.size();
+    vector<int> nxt(m, -1);
+    int i = 0, j = -1;
+    while (i < m - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            nxt[i] = j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return nxt;
+}
+
+int kmp(const string& s, const string& p) {
+    if (p.empty()) return 0;
+    vector<int> nxt = getNext(p);
+    int i = 0, j = 0;
+    while (i < (int)s.size() && j < (int)p.size()) {
+        if (j == -1 || s[i] == p[j]) {
+            ++i; ++j;
+        } else {
+            j = nxt[j];
+        }
+    }
+    return (j == (int)p.size()) ? i - j : -1;
+}
+
+int main() {
+    string s1, s2;
+    cin >> s1 >> s2;
+    if (s1.size() != s2.size()) {
+        cout << "false\n";
+        return 0;
+    }
+    string doubled = s1 + s1;
+    cout << (kmp(doubled, s2) != -1 ? "true" : "false") << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{题目 8：最短回文串（前缀添加）}
+
+\textbf{题目描述}  
+给定一个字符串 $s$，你可以在它前面添加若干字符，使整个字符串变成回文串。请输出构造出的最短回文串。
+
+\textbf{输入格式}  
+输入一个字符串 $s$。
+
+\textbf{输出格式}  
+输出最短回文串。
+
+\textbf{样例输入}
+\begin{lstlisting}
+abcd
+\end{lstlisting}
+
+\textbf{样例输出}
+\begin{lstlisting}
+dcbabcd
+\end{lstlisting}
+
+\textbf{参考代码}
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+vector<int> getLPS(const string& s) {
+    int n = s.size();
+    vector<int> lps(n, 0);
+    for (int i = 1, len = 0; i < n; ) {
+        if (s[i] == s[len]) {
+            lps[i++] = ++len;
+        } else if (len > 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+int main() {
+    string s;
+    cin >> s;
+    string rev = s;
+    reverse(rev.begin(), rev.end());
+
+    string t = s + "#" + rev;
+    vector<int> lps = getLPS(t);
+    int longest = lps.back();
+
+    string add = s.substr(longest);
+    reverse(add.begin(), add.end());
+    cout << add + s << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{练习建议（AI assist)}
+建议按以下顺序完成练习：
+
+\begin{enumerate}
+    \item 先做题 2，自己打印 \texttt{next} 数组。
+    \item 再做题 1，练熟 KMP 主流程。
+    \item 然后做题 3 和题 4，理解重叠匹配。
+    \item 接着做题 5 和题 6，掌握字符串周期。
+    \item 最后做题 7 和题 8，理解 KMP 的实际应用。
+\end{enumerate}
+
+\end{document}

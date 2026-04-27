@@ -1,0 +1,268 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{math-solutions-template}[2026/04/24 placeholder template inspired by source layout]
+
+% =========================
+% 1. 预配置
+% =========================
+\PassOptionsToPackage{no-math}{fontspec}
+\PassOptionsToPackage{partial=upright}{unicode-math}
+\PassOptionsToPackage{dvipsnames,svgnames}{xcolor}
+
+% =========================
+% 2. 基础颜色与页面底色
+% =========================
+\RequirePackage{xcolor}
+
+\definecolor{ThemeDarkBlue}{RGB}{71, 85, 142}    % 深藏青
+\definecolor{ThemeMidBlue}{RGB}{105, 130, 185}   % 灰蓝
+\definecolor{ThemeLightBlue}{RGB}{188, 202, 224} % 雾蓝
+\definecolor{ThemePaper}{RGB}{241, 239, 236}     % 米白
+\definecolor{ThemeRose}{RGB}{174, 107, 129}      % 绛粉
+\definecolor{ThemeWine}{RGB}{130, 45, 74}        % 藏红
+
+\colorlet{ThemePaperLight}{ThemePaper!40!white}
+\pagecolor{ThemePaperLight}
+
+\colorlet{MainTextColor}{ThemeDarkBlue!50!black}
+\AtBeginDocument{\color{MainTextColor}}
+
+% =========================
+% 3. 页面布局
+% =========================
+\RequirePackage[
+    inner=2cm,
+    outer=2cm,
+    top=2cm,
+    bottom=2cm,
+    marginparwidth=1.5cm,
+    marginparsep=0.3cm,
+    includehead,
+    includefoot,
+    heightrounded
+]{geometry}
+
+% =========================
+% 4. 标题格式
+% =========================
+\RequirePackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
+
+\ctexset{
+    chapter = {
+      format = \huge\bfseries\color{ThemeDarkBlue},
+      name = {第,章},
+      number = \textcolor{ThemeWine}{\thechapter},
+      aftername = \hspace{1em},
+      aftertitle = {
+              \par\vspace{0.5em}
+              {\color{ThemeWine}\hrule height 2pt}
+              \vspace{0.2em}
+              {\color{ThemeRose}\hrule height 0.5pt}
+          },
+      beforeskip = {-10pt},
+      afterskip = {30pt}
+     },
+    section = {
+      format = \Large\bfseries\color{ThemeDarkBlue},
+      name = {第,节},
+      number = \textcolor{ThemeWine}{\thesection},
+      aftername = \hspace{0.5em}
+     },
+    subsection = {
+      format = \large\bfseries\color{ThemeWine},
+      indent = 0pt
+    }
+}
+
+% =========================
+% 5. 数学与常用符号
+% =========================
+\RequirePackage{amsmath}
+\RequirePackage{amsthm}
+\RequirePackage{unicode-math}
+
+% 不随模板附带字体文件；这里使用 TeX Live 常见数学字体。
+% 如果你的系统缺字体，可改为 Latin Modern Math 或其他已安装字体。
+\setmathfont{NewCMMath-Book.otf}
+
+\everymath{\displaystyle}
+
+\newcommand{\e}{\symup{e}}
+\newcommand{\uppi}{\symup{\pi}}
+\newcommand{\ii}{\symup{i}}
+
+\RequirePackage{fixdif}
+
+% emoji 字体为可选配置；未安装 Noto Color Emoji 时可改为其他字体。
+% 本模板不附带字体文件。
+\newfontfamily\emojifont{DejaVu Sans}
+
+% =========================
+% 6. 图形、表格与列表
+% =========================
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{caption}
+
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, angles, quotes, calc, patterns}
+
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\RequirePackage{tabularray}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{enumitem}
+
+\RequirePackage{multicol}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins, breakable, theorems}
+
+% =========================
+% 7. 参考文献、交叉引用与超链接
+% =========================
+\RequirePackage[
+    backend=biber,
+    style=gb7714-2015,
+    sorting=none,
+    backref=true
+]{biblatex}
+
+\RequirePackage{zref-clever}
+\zcRefTypeSetup{equation}{
+    Name-sg = 公式,
+    name-sg = 公式,
+    Name-pl = 公式,
+    name-pl = 公式,
+    refbounds = {(,,,)},
+}
+\zcsetup{
+    tlastsep = { 和 },
+    pairsep = { 和 },
+    listsep = {, },
+    nameinlink=false
+}
+
+\RequirePackage{hyperref}
+\hypersetup{
+    plainpages=false,
+    unicode=true,
+    colorlinks=false,
+    pdfborderstyle={/S/U/W 0.5},
+    linkbordercolor=ThemeWine,
+    citebordercolor=ThemeRose,
+    urlbordercolor=ThemeWine,
+    bookmarksnumbered=true,
+    pdfstartview=FitH
+}
+
+\RequirePackage{bookmark}
+
+% =========================
+% 8. 习题解析类环境
+% =========================
+\allowdisplaybreaks[2]
+
+\setlist[enumerate,1]{
+    label=(\arabic*),
+    leftmargin=2.6em,
+    itemsep=0.25ex,
+    topsep=0.5ex,
+    parsep=0pt,
+    partopsep=0pt
+}
+
+\NewDocumentEnvironment{solution}{}%
+{\par\smallskip\noindent\textbf{解}\par\noindent\ignorespaces}%
+{\par\noindent\hfill$\mdblksquare$\par\smallskip}
+
+\NewDocumentEnvironment{myproof}{}%
+{\par\smallskip\noindent\textbf{证明}\par\noindent\ignorespaces}%
+{\par\noindent\hfill$\mdwhtsquare$\par\smallskip}
+
+\newcommand{\ansitem}[1]{%
+    \par\smallskip\noindent{(#1)}\quad\ignorespaces
+}
+
+\tcbset{
+    my_base_style/.style={
+            enhanced,
+            breakable,
+            boxrule=0.6pt,
+            arc=2mm,
+            outer arc=2mm,
+            top=1.2em,
+            colupper=MainTextColor,
+            fonttitle=\heiti,
+            description font=\normalfont\kaishu,
+            separator sign none,
+            description delimiters={---}{},
+            colback=ThemePaper!80!white,
+            attach boxed title to top left={xshift=3mm, yshift=-3mm, yshifttext=-1mm},
+            boxed title style={
+                    boxrule=0.5pt,
+                    arc=1mm,
+                },
+            segmentation style={dash pattern=on 3pt off 2pt, opacity=0.5}
+        }
+}
+
+\newtcbtheorem[number within=section]{problem}{习题}{
+    my_base_style,
+    colframe=ThemeDarkBlue,
+    colbacktitle=ThemeDarkBlue,
+    coltitle=white,
+    boxed title style={colframe=ThemeDarkBlue},
+    segmentation style={ThemeMidBlue}
+}{prob}
+
+\newtcbtheorem[number within=section]{note}{注释}{
+    my_base_style,
+    colframe=ThemeRose,
+    colbacktitle=ThemeRose!10!ThemePaper,
+    coltitle=ThemeWine,
+    boxed title style={colframe=ThemeRose},
+    segmentation style={ThemeRose}
+}{note}
+
+% =========================
+% 9. 页眉页脚
+% =========================
+\RequirePackage{fancyhdr}
+\RequirePackage{zhnumber}
+
+\setlength{\headheight}{18pt}
+\addtolength{\topmargin}{-3.5pt}
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE]{\fontsize{10.5pt}{12pt}\selectfont\color{ThemeWine}\bfseries\thepage}
+\fancyhead[RE]{\fontsize{10.5pt}{12pt}\selectfont\color{ThemeDarkBlue}\leftmark}
+\fancyhead[LO]{\fontsize{10.5pt}{12pt}\selectfont\color{ThemeDarkBlue}\rightmark}
+\fancyhead[RO]{\fontsize{10.5pt}{12pt}\selectfont\color{ThemeWine}\bfseries\thepage}
+
+\renewcommand{\headrule}{
+    {\color{ThemeWine}\hrule width\headwidth height 1.5pt}
+    \vspace{1pt}
+    {\color{ThemeRose}\hrule width\headwidth height 0.5pt}
+}
+\renewcommand{\footrulewidth}{0pt}
+
+\renewcommand{\chaptermark}[1]{%
+    \markboth{\color{ThemeRose}\if@mainmatter\CTEXthechapter\quad\fi\color{ThemeDarkBlue}#1}{}%
+}
+
+\renewcommand{\sectionmark}[1]{%
+    \markright{\color{ThemeRose}\S\thesection\quad\color{ThemeDarkBlue}#1}%
+}
+
+\renewcommand\tableofcontents{%
+    \chapter*{\contentsname}%
+    \@mkboth{\MakeUppercase\contentsname}{\MakeUppercase\contentsname}%
+    \begin{multicols}{2}
+        \@starttoc{toc}%
+    \end{multicols}
+}
+
+\endinput

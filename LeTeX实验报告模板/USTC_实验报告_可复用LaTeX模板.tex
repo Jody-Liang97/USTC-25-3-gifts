@@ -1,0 +1,286 @@
+% !TeX program = xelatex
+% =========================================================
+% 可复用中文实验报告 LaTeX 模板
+% 适用：课程实验报告、算法实验报告、课程大作业说明文档
+% 编译方式：xelatex <filename>.tex
+% =========================================================
+
+\documentclass[UTF8,a4paper,12pt,openany]{ctexrep}
+
+% --------------------- Basic Packages ---------------------
+\usepackage{geometry}
+\geometry{left=2.6cm,right=2.6cm,top=2.6cm,bottom=2.6cm,headheight=16pt}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,longtable,multirow}
+\usepackage{graphicx,float}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+\usepackage{microtype}
+
+% --------------------- Color Palette ---------------------
+% 你可以在这里修改整份报告的主色调。
+\definecolor{MainBlue}{HTML}{123C69}
+\definecolor{DeepBlue}{HTML}{0B2545}
+\definecolor{SoftBlue}{HTML}{EAF2F8}
+\definecolor{LightBlue}{HTML}{D6EAF8}
+\definecolor{InkBlack}{HTML}{202124}
+\definecolor{MutedGray}{HTML}{6B7280}
+\definecolor{LineGray}{HTML}{D1D5DB}
+\definecolor{CodeBg}{HTML}{F8FAFC}
+\definecolor{CodeRule}{HTML}{CBD5E1}
+\definecolor{AccentGold}{HTML}{B8870B}
+
+% --------------------- Hyperref ---------------------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=MainBlue,
+  urlcolor=MainBlue,
+  citecolor=MainBlue,
+  pdfauthor={Your Name},
+  pdftitle={实验报告标题}
+}
+
+% --------------------- Header / Footer ---------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{MutedGray}\leftmark}
+\fancyhead[R]{\small\color{MutedGray}\ReportShortTitle}
+\fancyfoot[C]{\small\color{MutedGray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{LineGray}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+% --------------------- Chapter / Section Style ---------------------
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{DeepBlue}}
+  {\raggedleft\large\color{MainBlue}第\,\thechapter\,章}
+  {0.4em}
+  {\raggedright}
+  [\vspace{0.4em}{\color{MainBlue}\titlerule[1.2pt]}]
+\titlespacing*{\chapter}{0pt}{-0.6em}{2.0em}
+\titleformat{\section}{\normalfont\Large\bfseries\color{DeepBlue}}{\thesection}{0.8em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.7em}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{MainBlue}}{\thesubsection}{0.8em}{}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
+
+% --------------------- Table of Contents Style ---------------------
+\titlecontents{chapter}[0em]
+  {\addvspace{0.7em}\bfseries\color{DeepBlue}}
+  {第\thecontentslabel\,章\quad}
+  {}
+  {\titlerule*[0.6pc]{.}\contentspage}
+\titlecontents{section}[2em]
+  {\small\color{InkBlack}}
+  {\thecontentslabel\quad}
+  {}
+  {\titlerule*[0.6pc]{.}\contentspage}
+
+% --------------------- Paragraph / List Style ---------------------
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.15em}
+\setlist[itemize]{leftmargin=2.2em,itemsep=0.25em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=2.2em,itemsep=0.25em,topsep=0.25em}
+\captionsetup{font=small,labelfont={bf,color=MainBlue},labelsep=quad}
+
+% --------------------- Reusable Boxes ---------------------
+\newtcolorbox{abstractbox}{
+  enhanced, breakable,
+  colback=SoftBlue, colframe=MainBlue,
+  boxrule=0.8pt, arc=1.5mm,
+  left=1.1em,right=1.1em,top=0.9em,bottom=0.9em,
+  title=摘要,
+  fonttitle=\bfseries\color{white},
+  colbacktitle=MainBlue,
+  attach boxed title to top left={xshift=1em,yshift=-2mm},
+  boxed title style={arc=1mm,boxrule=0pt}
+}
+
+\newtcolorbox{keybox}[1]{
+  enhanced, breakable,
+  colback=white, colframe=MainBlue,
+  boxrule=0.7pt, arc=1mm,
+  leftrule=3pt,
+  left=1em,right=1em,top=0.7em,bottom=0.7em,
+  title=#1,
+  fonttitle=\bfseries\color{DeepBlue},
+  colbacktitle=SoftBlue,
+  boxed title style={boxrule=0pt,arc=0mm},
+  attach boxed title to top left={xshift=0.6em,yshift=-2mm}
+}
+
+\newtcolorbox{resultbox}[1]{
+  enhanced, breakable,
+  colback=white, colframe=AccentGold,
+  boxrule=0.7pt, arc=1mm,
+  leftrule=3pt,
+  left=1em,right=1em,top=0.7em,bottom=0.7em,
+  title=#1,
+  fonttitle=\bfseries\color{InkBlack},
+  colbacktitle=white,
+  attach boxed title to top left={xshift=0.6em,yshift=-2mm}
+}
+
+% --------------------- Code Listing Style ---------------------
+\lstdefinestyle{cstyle}{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{MainBlue}\bfseries,
+    commentstyle=\color{MutedGray}\itshape,
+    stringstyle=\color{AccentGold},
+    numbers=left,
+    numberstyle=\scriptsize\color{MutedGray},
+    numbersep=9pt,
+    frame=single,
+    rulecolor=\color{CodeRule},
+    backgroundcolor=\color{CodeBg},
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    tabsize=4,
+    showstringspaces=false
+}
+
+\lstdefinestyle{bashstyle}{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{MainBlue}\bfseries,
+    commentstyle=\color{MutedGray}\itshape,
+    numbers=left,
+    numberstyle=\scriptsize\color{MutedGray},
+    numbersep=9pt,
+    frame=single,
+    rulecolor=\color{CodeRule},
+    backgroundcolor=\color{CodeBg},
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+% --------------------- Report Metadata ---------------------
+% 修改这里即可复用到其他报告。
+\newcommand{\ReportTitle}{实验报告主标题}
+\newcommand{\ReportShortTitle}{实验报告短标题}
+\newcommand{\ReportSubtitle}{English Subtitle or Brief Description}
+\newcommand{\CourseName}{课程名称}
+\newcommand{\SchoolName}{中国科学技术大学}
+\newcommand{\StudentName}{姓名}
+\newcommand{\StudentID}{学号}
+\newcommand{\SubmitDate}{\today}
+
+\begin{document}
+
+% =========================================================
+% Cover Page
+% =========================================================
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{1.0cm}
+  {\Large\bfseries \SchoolName\par}
+  \vspace{1.5cm}
+  {\color{MainBlue}\rule{0.72\textwidth}{1.2pt}\par}
+  \vspace{1.1cm}
+  {\fontsize{24pt}{30pt}\selectfont\bfseries\color{DeepBlue}\ReportTitle\par}
+  \vspace{0.45cm}
+  {\Large\itshape\color{MutedGray}\ReportSubtitle\par}
+  \vspace{1.1cm}
+  {\color{MainBlue}\rule{0.72\textwidth}{1.2pt}\par}
+  \vspace{2.4cm}
+
+  \begin{tcolorbox}[enhanced,width=0.72\textwidth,colback=white,colframe=LineGray,boxrule=0.8pt,arc=1mm,left=1.2cm,right=1.2cm,top=0.8cm,bottom=0.8cm]
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{>{\bfseries\color{DeepBlue}}p{3.0cm}p{7.2cm}}
+  课程名称 & \CourseName \\
+  姓名 & \StudentName \\
+  学号 & \StudentID \\
+  提交日期 & \SubmitDate \\
+  \end{tabular}
+  \end{tcolorbox}
+
+  \vfill
+  {\large\color{MutedGray}Q.E.D.\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\begin{abstractbox}
+这里填写摘要。摘要建议说明：实验任务、核心方法、主要结果和结论。一般控制在 200--400 字。
+\end{abstractbox}
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+% =========================================================
+\chapter{实验背景与任务}
+这里写实验背景、问题定义、输入输出说明和评分要求。
+
+\begin{keybox}{本章要点}
+这里可以放本章最重要的结论、实验目标或任务约束。
+\end{keybox}
+
+\section{问题描述}
+这里写问题描述。
+
+\section{实验要求}
+这里写实验要求。
+
+% =========================================================
+\chapter{方法设计}
+这里写总体设计思路。
+
+\section{核心思想}
+这里写核心思想。
+
+\begin{lstlisting}[style=cstyle,caption={示例 C 代码}]
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello, report template!\\n");
+    return 0;
+}
+\end{lstlisting}
+
+\begin{resultbox}{关键结论}
+这里可以放实验结果、复杂度结论、正确性结论或最终方案总结。
+\end{resultbox}
+
+% =========================================================
+\chapter{实验结果与分析}
+这里写实验环境、测试数据和结果分析。
+
+\begin{table}[H]
+\centering
+\caption{实验结果示例表}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{cccc}
+\toprule
+测试项 & 方法 A & 方法 B & 结论 \\
+\midrule
+样例 1 & 1.00 & 0.80 & 方法 B 更优 \\
+样例 2 & 2.00 & 1.50 & 方法 B 更优 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =========================================================
+\chapter{总结}
+这里写实验总结、问题反思和后续改进方向。
+
+\appendix
+\chapter{附录}
+这里放运行命令、完整代码片段、额外测试结果等。
+
+\begin{lstlisting}[style=bashstyle,caption={运行命令示例}]
+make test
+make perf
+\end{lstlisting}
+
+\end{document}
